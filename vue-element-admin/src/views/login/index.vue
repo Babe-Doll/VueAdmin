@@ -78,7 +78,7 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '111111'
+        password: 'nl123456'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -140,9 +140,10 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.loading = true
+          this.loading = true 
           this.$store.dispatch('user/login', this.loginForm)
-            .then(() => {  
+            .then(() => {   
+              debugger
               //登录后跳转redirect或者/，同时查询条件的query不会丢
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
@@ -152,8 +153,7 @@ export default {
             .catch(() => {
               alert("进入login catch")
               this.loading = false
-            })
-            alert("出login")
+            }) 
         } else {
           console.log('error submit!!')
           return false

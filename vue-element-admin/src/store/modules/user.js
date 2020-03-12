@@ -7,7 +7,8 @@ const state = {
   name: '',
   avatar: '',
   introduction: '',
-  roles: []
+  roles: [],
+  id: ''
 }
 
 const mutations = {
@@ -25,25 +26,30 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_ID: (state, id) => {
+    state.id = id
   }
 }
  
 const actions = {
   // user login
   login({ commit }, userInfo) {
+    console.log(userInfo) 
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
 
+        debugger
 
         // const { data } = response
         // commit('SET_TOKEN', data.token)
         // setToken(data.token)
         // resolve()
         // const { data } = response.token
-        console.log(response)
-        commit('SET_TOKEN', response.token)
-        setToken(response.token)
+        console.log("login get response:" +response)
+        commit('SET_TOKEN', response.data)
+        setToken(response.data)
         resolve()
       }).catch(error => {
         console.log( " store login:"+ error)
@@ -55,9 +61,8 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        debugger
-        // const { data } = response
+      getInfo(state.token).then(response => { 
+        const { id, username, role, avatar } = response.data
 
         // if (!data) {
         //   reject('Verification failed, please Login again.')
@@ -72,11 +77,13 @@ const actions = {
         // commit('SET_AVATAR', avatar)
         // commit('SET_INTRODUCTION', introduction)
 //  resolve(data)
-        commit('SET_ROLES', "admin")
-        commit('SET_NAME', response.username)
-        commit('SET_AVATAR', "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif")
+        commit('SET_ROLES', role)
+        commit('SET_ID', id)
+        commit('SET_NAME', username)
+        commit('SET_AVATAR', avatar)
         commit('SET_INTRODUCTION', "introduction")
-        resolve(response)
+        resolve(response.data)
+        alert("aaa")
       }).catch(error => {
         console.log(" store getinfo:" + error)
         reject(error)
