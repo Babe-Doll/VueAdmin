@@ -99,14 +99,23 @@ export const asyncRoutes = [
       {
         name:'categorycreate',
         path:'/category/create',
-        component:()=>import('../views/Category/Create.vue'),
-        meta:{title:'新增分类',icon:'edit',roles:['admin']}
+        component:()=>import('../views/category/create.vue'),
+        meta: { title: '新增分类', icon: 'edit', roles: ['admin'] },
+        
+      },
+      {
+        name: 'categoryedit',
+        path: '/category/edit',
+        hidden:true,
+        component: () => import('../views/category/edit.vue'),
+        meta: { title: '编辑分类', icon: 'edit', roles: ['admin'], activeMenu: '/category/list' },
+         
       },
       {
         name:'categorylist',
         path:'/category/list',
-        component:()=>import('../views/Category/Create.vue'),
-        meta:{title:'分类列表',icon:'edit',roles:['editor']}
+        component:()=>import('../views/category/create.vue'),
+        meta:{title:'分类列表',icon:'list'}
       }
     ]
 

@@ -1,24 +1,24 @@
-const vueSticky = {}
+const vue = {}
 let listenAction
-vueSticky.install = Vue => {
-  Vue.directive('sticky', {
+vue.install = Vue => {
+  Vue.directive('', {
     inserted(el, binding) {
       const params = binding.value || {}
-      const stickyTop = params.stickyTop || 0
+      const Top = params.Top || 0
       const zIndex = params.zIndex || 1000
       const elStyle = el.style
 
-      elStyle.position = '-webkit-sticky'
-      elStyle.position = 'sticky'
-      // if the browser support css sticky（Currently Safari, Firefox and Chrome Canary）
-      // if (~elStyle.position.indexOf('sticky')) {
-      //     elStyle.top = `${stickyTop}px`;
+      elStyle.position = '-webkit-'
+      elStyle.position = ''
+      // if the browser support css （Currently Safari, Firefox and Chrome Canary）
+      // if (~elStyle.position.indexOf('')) {
+      //     elStyle.top = `${Top}px`;
       //     elStyle.zIndex = zIndex;
       //     return
       // }
       const elHeight = el.getBoundingClientRect().height
       const elWidth = el.getBoundingClientRect().width
-      elStyle.cssText = `top: ${stickyTop}px; z-index: ${zIndex}`
+      elStyle.cssText = `top: ${Top}px; z-index: ${zIndex}`
 
       const parentElm = el.parentNode || document.documentElement
       const placeholder = document.createElement('div')
@@ -39,7 +39,7 @@ vueSticky.install = Vue => {
         return ret
       }
 
-      const sticky = () => {
+      const  = () => {
         if (active) {
           return
         }
@@ -66,10 +66,10 @@ vueSticky.install = Vue => {
       const check = () => {
         const scrollTop = getScroll(window, true)
         const offsetTop = el.getBoundingClientRect().top
-        if (offsetTop < stickyTop) {
-          sticky()
+        if (offsetTop < Top) {
+          ()
         } else {
-          if (scrollTop < elHeight + stickyTop) {
+          if (scrollTop < elHeight + Top) {
             reset()
           }
         }
@@ -87,5 +87,5 @@ vueSticky.install = Vue => {
   })
 }
 
-export default vueSticky
+export default vue
 

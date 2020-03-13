@@ -82,8 +82,7 @@ const actions = {
         commit('SET_NAME', username)
         commit('SET_AVATAR', avatar)
         commit('SET_INTRODUCTION', "introduction")
-        resolve(response.data)
-        alert("aaa")
+        resolve(response.data) 
       }).catch(error => {
         console.log(" store getinfo:" + error)
         reject(error)
