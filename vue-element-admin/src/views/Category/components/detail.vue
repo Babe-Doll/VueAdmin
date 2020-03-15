@@ -13,7 +13,10 @@
       <div class="detail-container">
         <el-row>
           <waring />
-          <el-col :span="24"></el-col> 
+          <el-col :span="24">
+              <ebook-upload
+              ></ebook-upload>
+          </el-col> 
           <el-col :span="24"></el-col>
         </el-row> 
       </div>
@@ -23,9 +26,10 @@
 <script>
 import Sticky from '../../../components/Sticky';
 import Waring from './waring';
+import EbookUpload from '../../../components/Upload/index';
 export default {
   components:{
-    Sticky,Waring
+    Sticky,Waring,EbookUpload
   },
   props:{
     isEdit:Boolean
@@ -34,7 +38,7 @@ export default {
     return {
       loading:false,
       postForm:{ 
-      }
+      }, 
     }
   },
   methods: {
