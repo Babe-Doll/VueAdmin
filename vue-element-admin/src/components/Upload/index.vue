@@ -1,6 +1,6 @@
 <template>
  <div class="upload-container">
-     <el-upload :action="action"
+     <el-upload :action="action" 
         :headers="headers"
         :multiple="false"
         :limit="1"
@@ -23,8 +23,7 @@
             </div> 
 
             <div class="el-upload__text" v-else>
-                图书已上传
-
+                图书已上传 
             </div>
      </el-upload>
  </div>
@@ -60,18 +59,35 @@ export default {
     data () { 
         return {
             userID:'',
-            action:`${process.env.VUE_APP_BASE_API}/User/UpdateAvatar?userID=`,
+            action:`${process.env.VUE_APP_BASE_API}/User/UpdateAvatar?userID=${store.getters.id}`,
         }
     },
     methods:{
         beforeUpload(file){
             console.log(file)
             this.userID = store.getters.id
-            this.action+=this.userID
+            // this.action+=this.userID
             console.log(this.userID,this.action)
             this.$emit('beforeUpload',file)
         },
-        onSuccess(){}, 
+        onSuccess(response,file){
+            console.log(response,file)
+            const { state,message} = response
+            if(state === 1){
+                this.$message({
+                    message:message,
+                    type:'success'
+                })
+                this.$emit('onSuccess',file)
+            }else if(state === 2 || state ===3 ){
+                 this.$message({
+                    message:message,
+                    type:'error'
+                })
+                this.$emit('onError',file)
+            }
+
+        }, 
         onError(error){
             console.log({error})
             const errMsg= error.message //&& JSON.parse(error.message)   
@@ -81,7 +97,14 @@ export default {
             })
             this.$emit('onError',errMsg)
         }, 
-        onRemove(){},  
+        onRemove(){
+             this.$message({
+                message:'文件移除成功',
+                type:'success'
+            })
+            this.$emit('onRemove')
+
+        },  
         onExceed(){
             this.$message({
                 message:'每次只能上传一个文件',
