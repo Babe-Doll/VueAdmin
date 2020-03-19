@@ -1,5 +1,5 @@
 <template>
-   <el-form ref="postForm" :model="postForm">
+   <el-form ref="postForm" :model="postForm" :rules="rules">
       <!--吸顶-->
       <sticky :class-name="'sub-navbar'">
         <el-button v-if="!isEdit" @click="showGuide"></a>显示帮助</el-button>
@@ -7,9 +7,7 @@
                     @click="submitForm"
                     type="success"
         >
-          {{isEdit?'编辑电子书':'新增电子书'}}
-
-          
+          {{isEdit?'编辑电子书':'新增电子书'}}           
         </el-button> 
       </sticky>
       
@@ -44,8 +42,8 @@
             <el-row>
               <el-col :span="24">
                 <el-form-item label="图片大小" :label-width="labelWidth">
-                    <img src="http://localhost:5002/upload/test.jpg" class="preview-img"> 
-                  </el-form-item> 
+                  <img src="http://localhost:5002/upload/test.jpg" class="preview-img"> 
+                </el-form-item> 
               </el-col> 
             </el-row>
             
@@ -74,7 +72,10 @@ export default {
       postForm:{ 
       }, 
       fileList:[], //获取到电子书时放到这里 才可以展示文件
-      labelWidth:'120px'
+      labelWidth:'120px',
+      rules:{
+        title:[{}]
+      }
     }
   },
   methods: {
@@ -89,10 +90,14 @@ export default {
       },
       submitForm(){
         this.loading =true
-        setTimeout(()=>
-        {
-          this.loading=false
-        },1000)
+        this.$refs.postForm.validate((valid,fields) =>{
+          console.log(valid,fields)
+          if(valid){
+
+          }else{
+
+          }
+        })
       }
   }
 }

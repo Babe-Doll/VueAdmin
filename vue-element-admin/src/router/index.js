@@ -114,7 +114,7 @@ export const asyncRoutes = [
       {
         name:'categorylist',
         path:'/category/list',
-        component:()=>import('../views/category/create.vue'),
+        component:()=>import('../views/category/list.vue'),
         meta:{title:'分类列表',icon:'list'}
       }
     ]
