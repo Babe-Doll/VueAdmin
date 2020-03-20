@@ -7,14 +7,16 @@ import { getToken } from '@/utils/auth'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 50000 // request timeout
 })
 
 // request interceptor
 service.interceptors.request.use(
   config => {
     // do something before request is sent
+    console.log("request config:") 
 
+    console.log(config)
     if (store.getters.token) {
       // let each request carry token
       // ['X-Token'] is a custom headers key
@@ -25,6 +27,7 @@ service.interceptors.request.use(
   },
   error => {
     // do something with request error
+    console.log("request error") 
     console.log(error) // for debug
     return Promise.reject(error)
   }
@@ -43,8 +46,11 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    const res = response.data  
-    // if the custom code is not 20000, it is judged as an error.
+    const res = response.data    
+    
+    console.log(response)
+    console.log(status)
+    // if the custom code is not 20000, it is judged as an error. 
     if (res.state !== 1) {
       alert("接口传入失败")
       Message({
@@ -72,7 +78,8 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('response err :' + error) // for debug
+    console.log(response)
+    console.log('response err :' , error) // for debug
     Message({
       message: error.message,
       type: 'error',

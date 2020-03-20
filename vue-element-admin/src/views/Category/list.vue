@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container"> 
         <el-input 
-            v-model="listQuery.name"
+            v-model="listQuery.keyword"
             placeholder="分类名"
             style="width:200px"
             class="filter-item"
@@ -150,6 +150,7 @@
         <div
             slot="footer"
             class="dialog-footer"
+            v-if="dialogFormBtnVisible"
         >
             <el-button @click="dialogFormVisible = false">
                 取消
@@ -183,7 +184,7 @@ export default {
             rows:30,
             sidx:'CreatorTime',
             sord:'asc',
-            name:undefined,
+            keyword:'',
             category:undefined,
         }, 
         temp:{ 
@@ -191,6 +192,7 @@ export default {
             name:''            
         },
         dialogFormVisible:false,
+        dialogFormBtnVisible:false,
         dialogStatus: '',
         listLoading:false,
         showCover:false,
@@ -213,8 +215,7 @@ export default {
     getList(){
         this.listLoading=true 
         getGridJson(this.listQuery).then(response =>{
-            this.listLoading=false 
-            console.log(response)
+            this.listLoading=false  
             this.list =response.data.rows
             this.total= response.data.total
         })
@@ -236,12 +237,13 @@ export default {
         }
     },
     handleFilter(){
-        console.log(this.listQuery)
+        this.getList()
     }, 
     handleCreate(){
         this.resetTemp()
         this.dialogStatus='create'
         this.dialogFormVisible=true
+        this.dialogFormBtnVisible=true 
         this.$nextTick(()=>{
             this.$refs['dataForm'].clearValidate()
         })
@@ -270,10 +272,10 @@ export default {
         // this.temp.name=row.name
 
         this.$set(this.temp,'id',row.id)
-        this.$set(this.temp,'name',row.name)
-       console.log(row,this.temp)
+        this.$set(this.temp,'name',row.name) 
         this.dialogStatus='update'
         this.dialogFormVisible=true
+        this.dialogFormBtnVisible=true
         this.$nextTick(()=>{
             this.$refs['dataForm'].clearValidate()
         })
@@ -300,24 +302,42 @@ export default {
         
         })
     },
-    handleDelete(row) {
-        this.temp=object.assign({},row) 
-        deleteForm(this.temp.ID).then(()=>{ 
+    handleDetail(row){ 
+        this.temp.id = row.id
+        this.temp.name=row.name 
+        this.dialogStatus='update'
+        this.dialogFormVisible=true
+        this.dialogFormBtnVisible=false 
+        this.$nextTick(()=>{
+            this.$refs['dataForm'].clearValidate()
+        })
+    },
+    handleDelete(row) { 
+        this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => { 
+            const tempData =Object.assign({},row) 
+            deleteForm(tempData.id).then(()=>{ 
+                this.$notify({
+                    title: 'Success',
+                    message: '删除成功',
+                    type: 'success',
+                    duration: 2000
+                }) 
+                this.getList()
+            })  
+        }).catch(err => {
+
+            console.log(err)
             this.$notify({
-                title: 'Success',
-                message: '删除成功',
-                type: 'success',
+                title: 'error',
+                message: '删除失败',
+                type: 'error',
                 duration: 2000
             }) 
-            this.getList()
-        })
-    
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      }) 
+        }); 
     },
     changeShowCover(value){
         this.showCover=value 

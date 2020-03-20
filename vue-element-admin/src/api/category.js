@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getGrkeyValueJson(query) {
+export function getGridJson(query) {
   return request({
     url: '/Category',
     method: 'get',
