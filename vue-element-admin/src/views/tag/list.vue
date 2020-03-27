@@ -3,27 +3,14 @@
     <div class="filter-container"> 
         <el-input 
             v-model="listQuery.keyword"
-            placeholder="分类名"
+            placeholder="标签名"
             style="width:200px"
             class="filter-item"
             clearable
             @keyup.enter.native ="handleFilter"
             @clear="handleFilter" 
             @blur="handleFilter"
-        />
-        <!--<el-select 
-            v-model="listQuery.category" 
-            placeholder="分类"
-            clearable 
-            class="filter-item"
-            @change="handleFilter" 
-        >
-            <el-option 
-                v-for="item in categoryList"
-                :key="item.value"
-                :label="item.label"
-            /> 
-        </el-select>-->
+        /> 
         <el-button 
             v-waves 
             class="filter-item" 
@@ -38,14 +25,7 @@
             icon="el-icon-edit"
             style="margin-left:5px"
             @click="handleCreate"
-        >新增</el-button>
-        <el-checkbox 
-            v-model="showCover"
-            class="filter-item" 
-            @change="changeShowCover"
-        >
-        显示图片
-        </el-checkbox>
+        >新增</el-button>  
     </div>
     
     <el-table 
@@ -62,8 +42,7 @@
             prop="id" 
             align="center"
             width="200px"
-        >
-          
+        > 
         </el-table-column>
         <el-table-column
             label="名称"
@@ -74,14 +53,11 @@
         </el-table-column> 
         <el-table-column
             label="创建时间"
-            prop="creatorTime" 
             sortable
+            prop="creatorTime" 
             align="center"
             width="200px"
-        >
-            <template slot-scope="{ row:{ creatorTime }}">
-                <span>{{creatorTime}}</span>
-            </template>
+        > 
         </el-table-column> 
         <el-table-column
             label="操作"
@@ -136,7 +112,7 @@
             style="width:400px;margin-left:50px;"
         >
             <el-form-item
-                label="分类名称" prop="name"
+                label="标签名称" prop="name"
             >
                 <el-input v-model="temp.name" />
             </el-form-item>
@@ -161,7 +137,7 @@
 <script> 
 import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
-import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/category.js'
+import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/tag.js'
 export default {
   components:{
     Pagination
@@ -178,8 +154,7 @@ export default {
             rows:30,
             sidx:'CreatorTime',
             sord:'ascending',
-            keyword:'',
-            category:undefined,
+            keyword:'', 
         }, 
         temp:{ 
             id:undefined,
@@ -189,8 +164,7 @@ export default {
         dialogFormBtnVisible:false,
         dialogStatus: '',
         listLoading:false,
-        showCover:false,
-        categoryList:[],
+        showCover:false, 
         list:null,
         textMap: {
             update: 'Edit',
@@ -202,8 +176,7 @@ export default {
     }
   },
   mounted() {
-      this.getList()
-      this.getCategoryList()
+      this.getList() 
   },
   methods: { 
     getList(){
@@ -216,19 +189,8 @@ export default {
     },
     sortChange(data){
         console.log(data)
-        if(data.order == null){
-            data.order ='ascending'
-        }
-        this.listQuery.sord =data.order
-        this.getList()
 
-    },
-    getCategoryList(){
-        // getCategory().then(response =>{
-        //     this.categoryList=response.data
-        // })
-        console.log("getcategory")
-    },
+    },  
     resetTemp(){
         this.temp={ 
             id:undefined,
@@ -312,7 +274,7 @@ export default {
         })
     },
     handleDelete(row) { 
-        this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

@@ -97,7 +97,7 @@ export default {
     this.getRoles()
   },
   methods: {
-    async getRoutes() {
+    async () {
       const res = await getRoutes()
       this.serviceRoutes = res.data
       this.routes = this.generateRoutes(res.data)

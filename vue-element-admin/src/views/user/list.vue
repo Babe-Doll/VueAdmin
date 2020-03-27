@@ -3,27 +3,14 @@
     <div class="filter-container"> 
         <el-input 
             v-model="listQuery.keyword"
-            placeholder="分类名"
+            placeholder="用户名"
             style="width:200px"
             class="filter-item"
             clearable
             @keyup.enter.native ="handleFilter"
             @clear="handleFilter" 
             @blur="handleFilter"
-        />
-        <!--<el-select 
-            v-model="listQuery.category" 
-            placeholder="分类"
-            clearable 
-            class="filter-item"
-            @change="handleFilter" 
-        >
-            <el-option 
-                v-for="item in categoryList"
-                :key="item.value"
-                :label="item.label"
-            /> 
-        </el-select>-->
+        /> 
         <el-button 
             v-waves 
             class="filter-item" 
@@ -66,12 +53,25 @@
           
         </el-table-column>
         <el-table-column
-            label="名称"
-            prop="name" 
+            label="用户名"
+            prop="account" 
             align="center"
             width="200px"
         > 
-        </el-table-column> 
+        <el-table-column
+            label="昵称"
+            prop="nickName" 
+            align="center"
+            width="200px"
+        > 
+        </el-table-column>
+        <el-table-column
+            label="权限"
+            prop="role" 
+            align="center"
+            width="200px"
+        > 
+        </el-table-column>  
         <el-table-column
             label="创建时间"
             prop="creatorTime" 
@@ -79,9 +79,7 @@
             align="center"
             width="200px"
         >
-            <template slot-scope="{ row:{ creatorTime }}">
-                <span>{{creatorTime}}</span>
-            </template>
+           
         </el-table-column> 
         <el-table-column
             label="操作"
@@ -136,7 +134,7 @@
             style="width:400px;margin-left:50px;"
         >
             <el-form-item
-                label="分类名称" prop="name"
+                label="用户名称" prop="name"
             >
                 <el-input v-model="temp.name" />
             </el-form-item>
@@ -161,7 +159,7 @@
 <script> 
 import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
-import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/category.js'
+import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/user.js'
 export default {
   components:{
     Pagination

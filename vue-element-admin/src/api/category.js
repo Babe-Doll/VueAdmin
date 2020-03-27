@@ -10,9 +10,9 @@ export function getGridJson(query) {
 
 export function getFormJson(keyValue) {
   return request({
-    url: '/Category',
+    url: `/Category/${keyValue}`,
     method: 'get',
-    params: { keyValue }
+    // params: { keyValue }
   })
 }
 
@@ -34,9 +34,8 @@ export function submitForm(data) {
 
 export function updateForm(keyValue,data) {
   return request({
-    url: '/Category',
-    method: 'post',
-    params: { keyValue },
+    url: `/Category/${keyValue}`,
+    method: 'post', 
     data
   })
 }
@@ -44,9 +43,8 @@ export function updateForm(keyValue,data) {
 
 export function deleteForm(keyValue) {
   return request({
-    url: '/Category',
-    method: 'delete',
-    params: { keyValue } 
+    url: `/Category/${keyValue}`,
+    method: 'delete' 
   })
 }
 

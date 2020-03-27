@@ -1,38 +1,42 @@
 import request from '@/utils/request'
 
-export function getRoutes() {
+export function getGridJson(query) {
   return request({
-    url: '/vue-element-admin/routes',
-    method: 'get'
+    url: '/Role',
+    method: 'get',
+    params: query
   })
 }
 
-export function getRoles() {
+export function getFormJson(keyValue) {
   return request({
-    url: '/vue-element-admin/roles',
-    method: 'get'
+    url: `/Role/${keyValue}`,
+    method: 'get', 
   })
 }
+ 
 
-export function addRole(data) {
+export function submitForm(data) {
   return request({
-    url: '/vue-element-admin/role',
+    url: '/Role',
     method: 'post',
     data
   })
 }
 
-export function updateRole(id, data) {
+export function updateForm(keyValue, data) {
   return request({
-    url: `/vue-element-admin/role/${id}`,
-    method: 'put',
+    url: `/Role/${keyValue}`,
+    method: 'post',
     data
   })
 }
 
-export function deleteRole(id) {
+
+export function deleteForm(keyValue) {
   return request({
-    url: `/vue-element-admin/role/${id}`,
+    url: `/Role/${keyValue}`,
     method: 'delete'
   })
 }
+
