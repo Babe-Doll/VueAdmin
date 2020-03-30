@@ -8,6 +8,13 @@ export function getGridJson(query) {
   })
 }
 
+export function getAllCategory() {
+  return request({
+    url: '/Role/all',
+    method: 'get' 
+  })
+}
+
 export function getFormJson(keyValue) {
   return request({
     url: `/Category/${keyValue}`,

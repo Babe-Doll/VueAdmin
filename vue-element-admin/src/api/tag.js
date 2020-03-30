@@ -8,6 +8,13 @@ export function getGridJson(query) {
   })
 }
 
+export function getAllTag() {
+  return request({
+    url: '/Tag/all',
+    method: 'get' 
+  })
+}
+
 export function getFormJson(keyValue) {
   return request({
     url: `/Tag/${keyValue}`,

@@ -134,9 +134,25 @@
             style="width:400px;margin-left:50px;"
         >
             <el-form-item
-                label="用户名称" prop="name"
+                label="账号" prop="account"
             >
-                <el-input v-model="temp.name" />
+                <el-input v-model="temp.account" />
+            </el-form-item>
+            <el-form-item label="角色">
+                <el-select v-model="temp.roleId" placeholder="请选择角色">
+                <el-option 
+                    v-for="item in roleList"
+                    :key="item.id"
+                    :value="item.id"
+                    :label="item.name" 
+                /> 
+                </el-select>
+            </el-form-item>
+
+            <el-form-item
+                label="密码" prop="password"
+            >
+                <el-input  type="password"  v-model="temp.password" />
             </el-form-item>
         </el-form>
         <div
@@ -160,6 +176,7 @@
 import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
 import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/user.js'
+import { getAllRole } from '../../api/role'
 export default {
   components:{
     Pagination
@@ -188,7 +205,7 @@ export default {
         dialogStatus: '',
         listLoading:false,
         showCover:false,
-        categoryList:[],
+        roleList:[],
         list:null,
         textMap: {
             update: 'Edit',
@@ -201,7 +218,7 @@ export default {
   },
   mounted() {
       this.getList()
-      this.getCategoryList()
+      this.getRoleList()
   },
   methods: { 
     getList(){
@@ -221,11 +238,10 @@ export default {
         this.getList()
 
     },
-    getCategoryList(){
-        // getCategory().then(response =>{
-        //     this.categoryList=response.data
-        // })
-        console.log("getcategory")
+    getRoleList(){
+        getAllRole().then(response =>{
+            this.roleList=response.data
+        }) 
     },
     resetTemp(){
         this.temp={ 
