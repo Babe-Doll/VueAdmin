@@ -135,14 +135,14 @@
             style="width:400px;margin-left:50px;"
         >
             <el-form-item
-                label="账号" prop="account"
+                label="标题" prop="title"
             >
-                <el-input v-model="temp.account" />
+                <el-input v-model="temp.title" />
             </el-form-item>
-            <el-form-item label="角色">
-                <el-select v-model="temp.roleId" placeholder="请选择角色">
+            <el-form-item label="分类">
+                <el-select v-model="temp.catagoryID" placeholder="请选择分类">
                 <el-option 
-                    v-for="item in roleList"
+                    v-for="item in catagoryList"
                     :key="item.id"
                     :value="item.id"
                     :label="item.name" 
@@ -151,9 +151,23 @@
             </el-form-item>
 
             <el-form-item
-                label="密码" prop="password"
+                label="摘要" prop="summary"
             >
-                <el-input  type="password"  v-model="temp.password" />
+                <el-input  v-model="temp.summary" />
+            </el-form-item>
+            <el-form-item
+                label="内容" prop="content"
+            >
+                 
+            </el-form-item>
+             <el-form-item
+                label="是否可见" 
+            >
+                <el-input  v-model="temp.isVisible" />
+            </el-form-item>
+             <el-form-item
+                label="标签" 
+            > 
             </el-form-item>
         </el-form>
         <div
@@ -177,7 +191,7 @@
 import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
 import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/user.js'
-import { getAllRole } from '../../api/role'
+import { getAllCatagory } from '../../api/category.js'
 export default {
   components:{
     Pagination
@@ -194,8 +208,7 @@ export default {
             rows:30,
             sidx:'CreatorTime',
             sord:'ascending',
-            keyword:'',
-            category:undefined,
+            keyword:'', 
         }, 
         temp:{ 
             id:undefined,
@@ -206,7 +219,7 @@ export default {
         dialogStatus: '',
         listLoading:false,
         showCover:false,
-        roleList:[],
+        catagoryList:[],
         list:null,
         textMap: {
             update: '编辑',
@@ -219,7 +232,7 @@ export default {
   },
   mounted() {
       this.getList()
-      this.getRoleList()
+      this.getCatagoryList()
   },
   methods: { 
     getList(){
@@ -239,9 +252,9 @@ export default {
         this.getList()
 
     },
-    getRoleList(){
-        getAllRole().then(response =>{
-            this.roleList=response.data
+    getCatagoryList(){
+        getAllCatagory().then(response =>{
+            this.catagoryList=response.data
         }) 
     },
     resetTemp(){
