@@ -3,7 +3,7 @@
     <div class="filter-container"> 
         <el-input 
             v-model="listQuery.keyword"
-            placeholder="用户名"
+            placeholder="标题"
             style="width:200px"
             class="filter-item"
             clearable
@@ -52,20 +52,20 @@
           
         </el-table-column>
         <el-table-column
-            label="用户名"
-            prop="account" 
+            label="标题"
+            prop="title" 
             align="center" 
         > 
         </el-table-column>
         <el-table-column
-            label="昵称"
-            prop="nickName" 
+            label="分类"
+            prop="catagory" 
             align="center" 
         > 
         </el-table-column>
         <el-table-column
-            label="权限"
-            prop="role" 
+            label="摘要"
+            prop="summary" 
             align="center" 
         > 
         </el-table-column>  
@@ -74,9 +74,14 @@
             prop="creatorTime" 
             sortable
             align="center" 
-        >
-           
+        > 
         </el-table-column> 
+        <el-table-column
+            label="是否可见"
+            prop="isVisible" 
+            align="center" 
+        > 
+        </el-table-column>  
         <el-table-column
             label="操作"
             align="center" 

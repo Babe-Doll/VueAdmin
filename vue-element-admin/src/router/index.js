@@ -90,32 +90,56 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
-    path:'/category',
-    name:'category',//加入name才有面包屑导航
-    component:Layout,//对应的组件
-    redirect:'/category/create',//重定向
-    meta:{title:'分类管理',icon:'documentation',roles:['admin','editor']},
-    children:[
+    path: '/system',
+    name: 'system',//加入name才有面包屑导航
+    component: Layout,//对应的组件
+    redirect: '/category/create',//重定向
+    meta: { title: '系统管理', icon: 'documentation', roles: ['admin'] },
+    children: [
       {
-        name:'categorycreate',
-        path:'/category/create',
-        component:()=>import('../views/category/create.vue'),
+        name: 'bloglist',
+        path: '/blog/list',
+        component: () => import('../views/blog/list.vue'),
+        meta: { title: '博客管理', icon: 'list' }
+      },
+      {
+        name: 'categorycreate',
+        path: '/category/create',
+        component: () => import('../views/category/create.vue'),
         meta: { title: '新增分类', icon: 'edit', roles: ['admin'] },
-        
+
+      },
+      // {
+      //   name: 'categoryedit',
+      //   path: '/category/edit',
+      //   hidden:true,
+      //   component: () => import('../views/category/edit.vue'),
+      //   meta: { title: '编辑分类', icon: 'edit', roles: ['admin'], activeMenu: '/category/list' },
+
+      // },
+      {
+        name: 'categorylist',
+        path: '/category/list',
+        component: () => import('../views/category/list.vue'),
+        meta: { title: '分类管理', icon: 'list' }
       },
       {
-        name: 'categoryedit',
-        path: '/category/edit',
-        hidden:true,
-        component: () => import('../views/category/edit.vue'),
-        meta: { title: '编辑分类', icon: 'edit', roles: ['admin'], activeMenu: '/category/list' },
-         
+        name: 'taglist',
+        path: '/tag/list',
+        component: () => import('../views/tag/list.vue'),
+        meta: { title: '标签管理', icon: 'list' }
       },
       {
-        name:'categorylist',
-        path:'/category/list',
-        component:()=>import('../views/category/list.vue'),
-        meta:{title:'分类列表',icon:'list'}
+        name: 'rolelist',
+        path: '/role/list',
+        component: () => import('../views/role/list.vue'),
+        meta: { title: '角色管理', icon: 'list' }
+      },
+      {
+        name: 'userlist',
+        path: '/user/list',
+        component: () => import('../views/user/list.vue'),
+        meta: { title: '用户管理', icon: 'user' }
       }
     ]
 
