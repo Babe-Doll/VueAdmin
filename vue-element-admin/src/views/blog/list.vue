@@ -121,10 +121,9 @@
         @pagination="getList"
     />
 
-    <el-dialog
+    <el-dialog 
         :title="textMap[dialogStatus]"
-        :visible.sync="dialogFormVisible"
-    
+        :visible.sync="dialogFormVisible" 
     >
         <el-form
             ref="dataForm"
@@ -132,7 +131,7 @@
             :model="temp"
             label-position="left"
             label-width="120px"
-            style="width:400px;margin-left:50px;"
+            style="width:800px;margin-left:50px;"
         >
             <el-form-item
                 label="标题" prop="title"
@@ -156,18 +155,45 @@
                 <el-input  v-model="temp.summary" />
             </el-form-item>
             <el-form-item
-                label="内容" prop="content"
+                label="内容" 
             >
-                 
+                <tinymce 
+                    v-model="temp.content"
+                    prop="content"
+                    ref="tinymce"
+                ></tinymce>
             </el-form-item>
              <el-form-item
                 label="是否可见" 
             >
-                <el-input  v-model="temp.isVisible" />
+                <el-switch
+                v-model="temp.isVisible"
+                active-text="可见"
+                inactive-text="不可见">
+                </el-switch> 
             </el-form-item>
              <el-form-item
                 label="标签" 
             > 
+            <el-tag
+                :key="tag"
+                v-for="tag in dynamicTags"
+                closable
+                :disable-transitions="false"
+                @close="handleClose(tag)">
+                {{tag}}
+            </el-tag>
+            <el-input
+                class="input-new-tag"
+                v-if="inputVisible"
+                v-model="inputValue"
+                ref="saveTagInput"
+                size="small"
+                @keyup.enter.native="handleInputConfirm"
+                @blur="handleInputConfirm"
+            >
+            </el-input>
+            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
             </el-form-item>
         </el-form>
         <div
@@ -192,9 +218,12 @@ import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
 import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/user.js'
 import { getAllCatagory } from '../../api/category.js'
+import { getTagListByBlogID,submitBlogTagBind,deleteBlogTagBind,submitTagForm } from '../../api/tag.js'
+import Tinymce from '../../components/Tinymce/index'
+
 export default {
   components:{
-    Pagination
+    Pagination,Tinymce
   },
   directives:{
     Waves
@@ -212,7 +241,11 @@ export default {
         }, 
         temp:{ 
             id:undefined,
-            name:''            
+            title:'',
+            catagoryID:'', 
+            summary:'',
+            blogContent:'',
+            isVisible:true
         },
         dialogFormVisible:false,
         dialogFormBtnVisible:false,
@@ -220,6 +253,7 @@ export default {
         listLoading:false,
         showCover:false,
         catagoryList:[],
+        tagList:[],
         list:null,
         textMap: {
             update: '编辑',
@@ -251,16 +285,40 @@ export default {
         this.listQuery.sord =data.order
         this.getList()
 
-    },
+    }, 
     getCatagoryList(){
         getAllCatagory().then(response =>{
+            this.catagoryList=response.data
+        }) 
+    },
+    getTagListByBlogID(){
+        getTagListByBlogID().then(response =>{
+            this.tagList=response.data
+        }) 
+    },
+    submitBlogTagBind(){
+        submitBlogTagBind().then(response =>{
+            this.tagList=response.data
+        }) 
+    },
+    deleteBlogTagBind(){
+        deleteBlogTagBind().then(response =>{
+            this.catagoryList=response.data
+        }) 
+    },
+    submitTagForm(){
+        submitTagForm().then(response =>{
             this.catagoryList=response.data
         }) 
     },
     resetTemp(){
         this.temp={ 
             id:undefined,
-            name:''
+            title:'',
+            catagoryID:'', 
+            summary:'',
+            blogContent:'',
+            isVisible:true
         }
     },
     handleFilter(){
@@ -296,10 +354,13 @@ export default {
     },
     handleUpdate(row){ 
         // this.temp.id = row.id
-        // this.temp.name=row.name
-
+        // this.temp.name=row.name 
         this.$set(this.temp,'id',row.id)
-        this.$set(this.temp,'name',row.name) 
+        this.$set(this.temp,'title',row.title) 
+        this.$set(this.temp,'catagoryID',row.catagoryID)
+        this.$set(this.temp,'summary',row.summary) 
+        this.$set(this.temp,'blogContent',row.blogContent)
+        this.$set(this.temp,'isVisible',row.isVisible)  
         this.dialogStatus='update'
         this.dialogFormVisible=true
         this.dialogFormBtnVisible=true
@@ -330,8 +391,14 @@ export default {
         })
     },
     handleDetail(row){ 
+ 
         this.temp.id = row.id
-        this.temp.name=row.name 
+        this.temp.title=row.title 
+        this.temp.catagoryID=row.catagoryID 
+        this.temp.summary=row.summary 
+        console.log(row.blogContent)
+        this.temp.blogContent=row.blogContent 
+        this.temp.isVisible=row.isVisible 
         this.dialogStatus='update'
         this.dialogFormVisible=true
         this.dialogFormBtnVisible=false 
@@ -374,6 +441,8 @@ export default {
 </script>
 
  
-<style scoped lang = "scss">
- 
+<style >
+ .el-dialog{
+    width:950px;
+ }
 </style>

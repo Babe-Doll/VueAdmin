@@ -23,7 +23,7 @@ export function getFormJson(keyValue) {
 }
 
 
-export function submitForm(data) {
+export function submitTagForm(data) {
   return request({
     url: '/Tag',
     method: 'post',
@@ -47,3 +47,26 @@ export function deleteForm(keyValue) {
   })
 }
 
+export function getTagListByBlogID(keyValue) {
+  return request({
+    url: '/Tag/getTagListByBlogID',
+    method: 'get',
+    keyValue: keyValue
+  })
+}
+
+export function submitBlogTagBind(data) {
+  return request({
+    url: '/Tag/submitBlogTagBind',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteBlogTagBind(keyValue) {
+  return request({
+    url: '/Tag/deleteBlogTagBind',
+    method: 'delete',
+    keyValue: keyValue
+  })
+}
