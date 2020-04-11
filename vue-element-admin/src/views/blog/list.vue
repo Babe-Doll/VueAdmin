@@ -141,7 +141,7 @@
             <el-form-item label="分类">
                 <el-select v-model="temp.catagoryID" placeholder="请选择分类">
                 <el-option 
-                    v-for="item in catagoryList"
+                    v-for="item in categoryList"
                     :key="item.id"
                     :value="item.id"
                     :label="item.name" 
@@ -176,24 +176,26 @@
                 label="标签" 
             > 
             <el-tag
-                :key="tag"
-                v-for="tag in dynamicTags"
+                :key="tag.id"
+                v-for="tag in blogTagBindList"
                 closable
                 :disable-transitions="false"
-                @close="handleClose(tag)">
-                {{tag}}
+                @close="handleTagClose(tag)">
+                {{tag.name}}
             </el-tag>
-            <el-input
+            <el-autocomplete
                 class="input-new-tag"
-                v-if="inputVisible"
-                v-model="inputValue"
+                v-if="inputTagVisible"
+                v-model="inputTagValue"
                 ref="saveTagInput"
                 size="small"
-                @keyup.enter.native="handleInputConfirm"
-                @blur="handleInputConfirm"
+                :fetch-suggestions="queryTagSearch" 
+                @select="handleTagSelect"
+                @keyup.enter.native="handleTagInputConfirm"
+                @blur="handleTagInputConfirm"
             >
-            </el-input>
-            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+            </el-autocomplete>
+            <el-button v-else class="button-new-tag" size="small" @click="showTagInput">+ New Tag</el-button>
             </el-form-item>
         </el-form>
         <div
@@ -217,8 +219,8 @@
 import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
 import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/user.js'
-import { getAllCatagory } from '../../api/category.js'
-import { getTagListByBlogID,submitBlogTagBind,deleteBlogTagBind,submitTagForm } from '../../api/tag.js'
+import { getAllCategory } from '../../api/category.js'
+import { getTagListByBlogID,submitBlogTagBind,deleteBlogTagBind,submitTagForm,createTagAndBindBlog,getAllTag } from '../../api/tag.js'
 import Tinymce from '../../components/Tinymce/index'
 
 export default {
@@ -246,14 +248,16 @@ export default {
             summary:'',
             blogContent:'',
             isVisible:true
-        },
+        }, 
+        
         dialogFormVisible:false,
         dialogFormBtnVisible:false,
         dialogStatus: '',
         listLoading:false,
         showCover:false,
-        catagoryList:[],
+        categoryList:[],
         tagList:[],
+        blogTagBindList:[],
         list:null,
         textMap: {
             update: '编辑',
@@ -262,11 +266,13 @@ export default {
         rules: {
             name: [{ required: true, message: '名称必填', trigger: 'change' }] 
         },
+        inputTagValue:'',
+        inputTagVisible:false, 
     }
   },
   mounted() {
       this.getList()
-      this.getCatagoryList()
+      this.getCategoryList()
   },
   methods: { 
     getList(){
@@ -286,31 +292,22 @@ export default {
         this.getList()
 
     }, 
-    getCatagoryList(){
-        getAllCatagory().then(response =>{
-            this.catagoryList=response.data
+    getCategoryList(){
+        getAllCategory().then(response =>{
+            this.categoryList=response.data
         }) 
     },
-    getTagListByBlogID(){
-        getTagListByBlogID().then(response =>{
+    getTagList(){
+        getAllTag().then(response =>{
+            console.log(response.data)
             this.tagList=response.data
         }) 
     },
-    submitBlogTagBind(){
-        submitBlogTagBind().then(response =>{
-            this.tagList=response.data
+    getTagListByBlogID(keyValue){
+        getTagListByBlogID(keyValue).then(response =>{
+            this.blogTagBindList=response.data
         }) 
-    },
-    deleteBlogTagBind(){
-        deleteBlogTagBind().then(response =>{
-            this.catagoryList=response.data
-        }) 
-    },
-    submitTagForm(){
-        submitTagForm().then(response =>{
-            this.catagoryList=response.data
-        }) 
-    },
+    },  
     resetTemp(){
         this.temp={ 
             id:undefined,
@@ -327,6 +324,9 @@ export default {
     handleCreate(){
         this.resetTemp()
         this.dialogStatus='create'
+
+        this.getTagList()
+
         this.dialogFormVisible=true
         this.dialogFormBtnVisible=true 
         this.$nextTick(()=>{
@@ -338,7 +338,7 @@ export default {
         {
             if(valid){
                 submitForm(this.temp).then(()=>{ 
-                this.dialogFormVisible = false
+                this.dialogFormVisible = false 
                     this.$notify({
                         title: 'Success',
                         message: '创建成功',
@@ -353,6 +353,8 @@ export default {
         })
     },
     handleUpdate(row){ 
+
+
         // this.temp.id = row.id
         // this.temp.name=row.name 
         this.$set(this.temp,'id',row.id)
@@ -361,6 +363,9 @@ export default {
         this.$set(this.temp,'summary',row.summary) 
         this.$set(this.temp,'blogContent',row.blogContent)
         this.$set(this.temp,'isVisible',row.isVisible)  
+
+        this.getTagList()
+
         this.dialogStatus='update'
         this.dialogFormVisible=true
         this.dialogFormBtnVisible=true
@@ -391,7 +396,7 @@ export default {
         })
     },
     handleDetail(row){ 
- 
+        
         this.temp.id = row.id
         this.temp.title=row.title 
         this.temp.catagoryID=row.catagoryID 
@@ -399,6 +404,9 @@ export default {
         console.log(row.blogContent)
         this.temp.blogContent=row.blogContent 
         this.temp.isVisible=row.isVisible 
+
+        this.getTagListByBlogID(row.id)
+
         this.dialogStatus='update'
         this.dialogFormVisible=true
         this.dialogFormBtnVisible=false 
@@ -435,8 +443,102 @@ export default {
     },
     changeShowCover(value){
         this.showCover=value 
+    },
+    handleTagClose(tag){ 
+        console.log("删除tag",tag)
+        deleteBlogTagBind(tag.bindID).then(()=>{ 
+            this.$notify({
+                title: 'Success',
+                message: '删除标签成功',
+                type: 'success',
+                duration: 2000
+            }) 
+            this.getList()
+        }).catch(err => {
+
+            console.log(err)
+            this.$notify({
+                title: 'error',
+                message: '删除标签失败',
+                type: 'error',
+                duration: 2000
+            }) 
+        }) 
+    },
+    showTagInput() {
+        this.inputTagVisible = true;
+        this.$nextTick(_ => {
+            this.$refs.saveTagInput.$refs.input.focus();
+        });
+    },
+    handleTagInputConfirm(){ 
+        console.log(this.inputTagValue)
+        // if(tagList.indexOf(this.inputTagValue) > -1){
+        //     var bindModel={
+        //         TagName:this.inputTagValue,
+        //         BlogID:this.temp.id,
+        //     }
+        //     createTagAndBindBlog(bindModel).then(()=>{ 
+        //         this.$notify({
+        //             title: 'Success',
+        //             message: '添加标签和绑定成功',
+        //             type: 'success',
+        //             duration: 2000
+        //         }).catch(err => { 
+        //             this.$notify({
+        //                 title: 'error',
+        //                 message: '添加标签和绑定失败',
+        //                 type: 'error',
+        //                 duration: 2000
+        //             }) 
+        //         })
+        //     }) 
+        //     this.getList() 
+        // }else{
+        //     var entity={
+        //         TagID:,
+        //         BlogID:this.temp.id,
+        //     }  
+        //     submitBlogTagBind(entity).then(()=>{ 
+        //         this.$notify({
+        //             title: 'Success',
+        //             message: '删除标签成功',
+        //             type: 'success',
+        //             duration: 2000
+        //         }) 
+        //         this.getList()
+        //     }).catch(err => {
+
+        //         console.log(err)
+        //         this.$notify({
+        //             title: 'error',
+        //             message: '删除标签失败',
+        //             type: 'error',
+        //             duration: 2000
+        //         }) 
+        //     }) 
+        // }
+        this.inputTagValue=""
+        
+    },
+    handleTagSelect(item){
+        console.log(item)
+    },
+    createFilter(queryString) {
+        return (tag) => {
+          return (tag.name.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+    },
+    queryTagSearch(queryString, cb){
+        var tags = this.tagList;
+        console.log("TAGS",tags)
+        
+        var results = queryString ? tags.filter(this.createFilter(queryString)) : tags;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
     }
-  }
+  
+   }
 }
 </script>
 

@@ -33,12 +33,12 @@ export function submitTagForm(data) {
 
 export function updateForm(keyValue, data) {
   return request({
-    url: `/Tag/${keyValue}`,
+    url: '/Tag',
     method: 'post',
-    data
+    data,
+    params: { keyValue }
   })
 }
-
 
 export function deleteForm(keyValue) {
   return request({
@@ -67,6 +67,14 @@ export function deleteBlogTagBind(keyValue) {
   return request({
     url: '/Tag/deleteBlogTagBind',
     method: 'delete',
-    keyValue: keyValue
+    params: keyValue
+  })
+}
+
+export function createTagAndBindBlog(data) {
+  return request({
+    url: '/Tag/CreateTagAndBindBlog',
+    method: 'post',
+    data
   })
 }

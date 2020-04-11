@@ -59,11 +59,12 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => { 
+        if (!response) {
+          reject('Verification failed, please Login again.')
+        } 
         const { id, username, role, avatar } = response.data
 
-        // if (!data) {
-        //   reject('Verification failed, please Login again.')
-        // } 
+        
         // const { roles, name, avatar, introduction } = data 
         // // roles must be a non-empty array
         // if (!roles || roles.length <= 0) {

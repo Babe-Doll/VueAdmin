@@ -50,9 +50,10 @@ export function submitForm(data) {
 
 export function updateForm(keyValue, data) {
   return request({
-    url: `/User/${keyValue}`,
+    url: '/User',
     method: 'post',
-    data
+    data,
+    params: { keyValue }
   })
 }
 

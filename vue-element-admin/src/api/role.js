@@ -33,9 +33,10 @@ export function submitForm(data) {
 
 export function updateForm(keyValue, data) {
   return request({
-    url: `/Role/${keyValue}`,
+    url: '/Role',
     method: 'post',
-    data
+    data,
+    params: { keyValue }
   })
 }
 

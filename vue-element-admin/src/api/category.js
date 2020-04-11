@@ -10,7 +10,7 @@ export function getGridJson(query) {
 
 export function getAllCategory() {
   return request({
-    url: '/Role/all',
+    url: '/Category/all',
     method: 'get' 
   })
 }
@@ -41,9 +41,10 @@ export function submitForm(data) {
 
 export function updateForm(keyValue,data) {
   return request({
-    url: `/Category/${keyValue}`,
+    url: '/Category',
     method: 'post', 
-    data
+    data,
+    params:  { keyValue }
   })
 }
 

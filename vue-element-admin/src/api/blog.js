@@ -26,12 +26,12 @@ export function submitForm(data) {
 
 export function updateForm(keyValue, data) {
   return request({
-    url: `/Blog/${keyValue}`,
+    url: '/Blog',
     method: 'post',
-    data
+    data,
+    params: { keyValue }
   })
 }
-
 
 export function deleteForm(keyValue) {
   return request({
