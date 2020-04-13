@@ -176,7 +176,7 @@
                 label="标签" 
             > 
             <el-tag
-                :key="tag.id"
+                :key="tag.id" 
                 v-for="tag in blogTagBindList"
                 closable
                 :disable-transitions="false"
@@ -186,13 +186,14 @@
             <el-autocomplete
                 class="input-new-tag"
                 v-if="inputTagVisible"
+                value-key="name"
                 v-model="inputTagValue"
                 ref="saveTagInput"
                 size="small"
                 :fetch-suggestions="queryTagSearch" 
                 @select="handleTagSelect"
                 @keyup.enter.native="handleTagInputConfirm"
-                @blur="handleTagInputConfirm"
+                
             >
             </el-autocomplete>
             <el-button v-else class="button-new-tag" size="small" @click="showTagInput">+ New Tag</el-button>
@@ -206,7 +207,7 @@
             <el-button @click="dialogFormVisible = false">
                 取消
             </el-button>
-            <el-button type="primary"  @click="dialogFormVisible === 'create' ?createData():updateData()">
+            <el-button type="primary"  @click="dialogStatus === 'create' ?createData():updateData()">
                 提交
             </el-button>
         </div>
@@ -267,6 +268,7 @@ export default {
             name: [{ required: true, message: '名称必填', trigger: 'change' }] 
         },
         inputTagValue:'',
+        selectTagItem:undefined,
         inputTagVisible:false, 
     }
   },
@@ -324,7 +326,7 @@ export default {
     handleCreate(){
         this.resetTemp()
         this.dialogStatus='create'
-
+        this.blogTagBindList=[]
         this.getTagList()
 
         this.dialogFormVisible=true
@@ -363,7 +365,7 @@ export default {
         this.$set(this.temp,'summary',row.summary) 
         this.$set(this.temp,'blogContent',row.blogContent)
         this.$set(this.temp,'isVisible',row.isVisible)  
-
+        this.getTagListByBlogID(row.id)
         this.getTagList()
 
         this.dialogStatus='update'
@@ -465,64 +467,105 @@ export default {
             }) 
         }) 
     },
+    //+tag button点击后展示input
     showTagInput() {
         this.inputTagVisible = true;
         this.$nextTick(_ => {
             this.$refs.saveTagInput.$refs.input.focus();
         });
     },
+    //input输入完成后
     handleTagInputConfirm(){ 
-        console.log(this.inputTagValue)
-        // if(tagList.indexOf(this.inputTagValue) > -1){
-        //     var bindModel={
-        //         TagName:this.inputTagValue,
-        //         BlogID:this.temp.id,
-        //     }
-        //     createTagAndBindBlog(bindModel).then(()=>{ 
-        //         this.$notify({
-        //             title: 'Success',
-        //             message: '添加标签和绑定成功',
-        //             type: 'success',
-        //             duration: 2000
-        //         }).catch(err => { 
-        //             this.$notify({
-        //                 title: 'error',
-        //                 message: '添加标签和绑定失败',
-        //                 type: 'error',
-        //                 duration: 2000
-        //             }) 
-        //         })
-        //     }) 
-        //     this.getList() 
-        // }else{
-        //     var entity={
-        //         TagID:,
-        //         BlogID:this.temp.id,
-        //     }  
-        //     submitBlogTagBind(entity).then(()=>{ 
-        //         this.$notify({
-        //             title: 'Success',
-        //             message: '删除标签成功',
-        //             type: 'success',
-        //             duration: 2000
-        //         }) 
-        //         this.getList()
-        //     }).catch(err => {
+        console.log("input输入完成后",this.inputTagValue)
+        var tagNotExist=true  
+        this.tagList.forEach(tag => { 
+            console.log("foreach taglist",tag)
+            if(tag.name != this.inputTagValue){
+                tagNotExist = false
+            }
 
-        //         console.log(err)
-        //         this.$notify({
-        //             title: 'error',
-        //             message: '删除标签失败',
-        //             type: 'error',
-        //             duration: 2000
-        //         }) 
-        //     }) 
-        // }
+        })
+        if(this.dialogStatus === 'create'){
+            
+            var tag={
+                name:this.inputTagValue
+            }
+           
+            if(tagNotExist){
+                submitTagForm(tag).then(response =>{
+                    console.log("添加tag后返回",response)
+                    if(response.data != null){
+                         this.blogTagBindList.push(response.data)
+                    } 
+                    this.$notify({
+                        title: 'Success',
+                        message: '添加标签成功',
+                        type: 'success',
+                        duration: 2000
+                    }) 
+                }) 
+            }else{
+                if(this.selectTagItem != null){
+                    this.blogTagBindList.push(this.selectTagItem)
+                    console.log("在create中添加bindlist",this.blogTagBindList)
+                    this.selectTagItem = null
+                }
+                
+            } 
+        }else{
+            if(tagNotExist){
+                var bindModel={
+                    TagName:this.inputTagValue,
+                    BlogID:this.temp.id,
+                }
+                createTagAndBindBlog(bindModel).then(()=>{ 
+                    this.$notify({
+                        title: 'Success',
+                        message: '添加标签和绑定成功',
+                        type: 'success',
+                        duration: 2000
+                    })
+                }).catch(err => { 
+                    this.$notify({
+                        title: 'error',
+                        message: '添加标签和绑定失败',
+                        type: 'error',
+                        duration: 2000
+                    }) 
+                })
+                this.getList() 
+            }else{
+                var entity={
+                    TagID:this.selectTagItem.id,
+                    BlogID:this.temp.id,
+                }  
+                submitBlogTagBind(entity).then(()=>{ 
+                    this.$notify({
+                        title: 'Success',
+                        message: '添加绑定成功',
+                        type: 'success',
+                        duration: 2000
+                    }) 
+                    this.getList()
+                }).catch(err => {
+
+                    console.log(err)
+                    this.$notify({
+                        title: 'error',
+                        message: '删除绑定失败',
+                        type: 'error',
+                        duration: 2000
+                    }) 
+                }) 
+            }
+        }
+       
         this.inputTagValue=""
         
     },
     handleTagSelect(item){
-        console.log(item)
+        console.log("选择后",item)
+        this.selectTagItem = item 
     },
     createFilter(queryString) {
         return (tag) => {
@@ -531,6 +574,7 @@ export default {
     },
     queryTagSearch(queryString, cb){
         var tags = this.tagList;
+        tags.value = tags.name;
         console.log("TAGS",tags)
         
         var results = queryString ? tags.filter(this.createFilter(queryString)) : tags;

@@ -60,6 +60,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => { 
         if (!response) {
+          console.log(response)
           reject('Verification failed, please Login again.')
         } 
         const { id, username, role, avatar } = response.data
