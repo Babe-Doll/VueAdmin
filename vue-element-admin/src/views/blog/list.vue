@@ -193,6 +193,7 @@
                 :fetch-suggestions="queryTagSearch" 
                 @select="handleTagSelect"
                 @keyup.enter.native="handleTagInputConfirm"
+                @blur="handleTagInputConfirm"
                 
             >
             </el-autocomplete>
@@ -221,7 +222,7 @@ import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
 import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/user.js'
 import { getAllCategory } from '../../api/category.js'
-import { getTagListByBlogID,submitBlogTagBind,deleteBlogTagBind,submitTagForm,createTagAndBindBlog,getAllTag } from '../../api/tag.js'
+import { getTagListByBlogID,submitBlogTagBind,deleteBlogTagBind,submitTagForm,createTagAndBindBlog,getAllTag,GetTagsNoBindByBlogID } from '../../api/tag.js'
 import Tinymce from '../../components/Tinymce/index'
 
 export default {
@@ -309,6 +310,11 @@ export default {
         getTagListByBlogID(keyValue).then(response =>{
             this.blogTagBindList=response.data
         }) 
+    },
+    getTagListNoBind(keyValue){
+        getTagListNoBind(keyValue).then(response =>{
+            this.tagList=response.data
+        }) 
     },  
     resetTemp(){
         this.temp={ 
@@ -366,7 +372,7 @@ export default {
         this.$set(this.temp,'blogContent',row.blogContent)
         this.$set(this.temp,'isVisible',row.isVisible)  
         this.getTagListByBlogID(row.id)
-        this.getTagList()
+        this.getTagsNoBindByBlogID(row.id)
 
         this.dialogStatus='update'
         this.dialogFormVisible=true
@@ -448,24 +454,38 @@ export default {
     },
     handleTagClose(tag){ 
         console.log("删除tag",tag)
-        deleteBlogTagBind(tag.bindID).then(()=>{ 
-            this.$notify({
-                title: 'Success',
-                message: '删除标签成功',
-                type: 'success',
-                duration: 2000
-            }) 
-            this.getList()
-        }).catch(err => {
+        if(this.dialogStatus === 'create'){
 
-            console.log(err)
-            this.$notify({
-                title: 'error',
-                message: '删除标签失败',
-                type: 'error',
-                duration: 2000
-            }) 
-        }) 
+            this.blogTagBindList.forEach(tagFromList => {  
+                if(tagFromList.id == tag.id){
+                    if (this.blogTagBindList.indexOf(tagFromList) > -1) {
+                        var i = this.blogTagBindList.indexOf(tagFromList);
+                        this.blogTagBindList.splice(i, 1);
+                        console.log("删除create下的标签",this.tagList)
+                    }
+                } 
+            })
+        }else{
+            deleteBlogTagBind(tag.bindID).then(()=>{ 
+                this.$notify({
+                    title: 'Success',
+                    message: '删除标签成功',
+                    type: 'success',
+                    duration: 2000
+                }) 
+                this.getList()
+            }).catch(err => {
+
+                console.log(err)
+                this.$notify({
+                    title: 'error',
+                    message: '删除标签失败',
+                    type: 'error',
+                    duration: 2000
+                }) 
+            })
+            this.getTagsNoBindByBlogID(tag.id)
+        }
     },
     //+tag button点击后展示input
     showTagInput() {
@@ -475,12 +495,31 @@ export default {
         });
     },
     //input输入完成后
-    handleTagInputConfirm(){ 
+    handleTagInputConfirm(){  
+
+        setTimeout(()=>{ 
+            if(!!this.inputTagValue  || !!this.inputTagValue){ 
+                this.setTimeTagInput() 
+            }else{  
+                this.$message({
+                    message:"请填入内容",
+                    type:'error'
+                }) 
+                this.inputTagVisible=false
+                return false 
+            }
+
+        }, 300);
+        
+        
+    },
+    setTimeTagInput(){
+        console.log(this.inputTagValue,this.inputTagValue)
+
         console.log("input输入完成后",this.inputTagValue)
         var tagNotExist=true  
-        this.tagList.forEach(tag => { 
-            console.log("foreach taglist",tag)
-            if(tag.name != this.inputTagValue){
+        this.tagList.forEach(tag => {  
+            if(tag.name == this.inputTagValue){
                 tagNotExist = false
             }
 
@@ -508,7 +547,17 @@ export default {
                 if(this.selectTagItem != null){
                     this.blogTagBindList.push(this.selectTagItem)
                     console.log("在create中添加bindlist",this.blogTagBindList)
+                    this.tagList.forEach(tag => {  
+                        if(tag.id == selectTagItem.id){
+                            if (this.tagList.indexOf(tag) > -1) {
+                                var i = this.tagList.indexOf(tag);
+                                this.tagList.splice(i, 1);
+                                console.log("删除create下的标签",this.tagList)
+                            }
+                        } 
+                    })
                     this.selectTagItem = null
+
                 }
                 
             } 
@@ -561,11 +610,12 @@ export default {
         }
        
         this.inputTagValue=""
-        
+
     },
     handleTagSelect(item){
         console.log("选择后",item)
         this.selectTagItem = item 
+        
     },
     createFilter(queryString) {
         return (tag) => {
@@ -590,5 +640,24 @@ export default {
 <style >
  .el-dialog{
     width:950px;
- }
+ } 
+  .el-tag + .el-tag {
+    margin-left: 10px;
+  }
+  .button-new-tag {
+    margin-left: 10px;
+    height: 32px;
+    line-height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .input-new-tag {
+    width: 90px;
+    margin-left: 10px;
+    vertical-align: bottom;
+  }
+ .el-tag--medium {
+    height: auto;
+    line-height: 32px;
+}
 </style>

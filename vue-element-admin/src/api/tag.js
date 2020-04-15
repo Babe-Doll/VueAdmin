@@ -54,7 +54,13 @@ export function getTagListByBlogID(keyValue) {
     keyValue: keyValue
   })
 }
-
+export function GetTagsNoBindByBlogID(keyValue) {
+  return request({
+    url: '/Tag/GetTagsNoBindByBlogID',
+    method: 'get',
+    params: keyValue
+  })
+}
 export function submitBlogTagBind(data) {
   return request({
     url: '/Tag/submitBlogTagBind',
