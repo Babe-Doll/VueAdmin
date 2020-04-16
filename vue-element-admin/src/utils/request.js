@@ -73,7 +73,7 @@ service.interceptors.response.use(
   error => {  
     console.log(error)
     console.log('response err :' ,error) // for debug 
-    if (error == ' Error: "Request failed with status code 401"'){
+    if (error == 'Error: "Request failed with status code 401"'){
       store.dispatch('user/resetToken').then(() => {
         location.reload()
       })

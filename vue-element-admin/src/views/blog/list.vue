@@ -158,8 +158,8 @@
                 label="内容" 
             >
                 <tinymce 
-                    v-model="temp.content"
-                    prop="content"
+                    v-model="temp.blogContent"
+                    prop="blogContent"
                     ref="tinymce"
                 ></tinymce>
             </el-form-item>
@@ -181,7 +181,7 @@
                 closable
                 :disable-transitions="false"
                 @close="handleTagClose(tag)">
-                {{tag.name}}
+                {{tag.tagName}}
             </el-tag>
             <el-autocomplete
                 class="input-new-tag"
@@ -220,9 +220,9 @@
 <script> 
 import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
-import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/user.js'
+import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/blog.js'
 import { getAllCategory } from '../../api/category.js'
-import { getTagListByBlogID,submitBlogTagBind,deleteBlogTagBind,submitTagForm,createTagAndBindBlog,getAllTag,GetTagsNoBindByBlogID } from '../../api/tag.js'
+import { getTagListByBlogID,submitBlogTagBind,deleteBlogTagBind,submitTagForm,createTagAndBindBlog,getAllTag,getTagsNoBindByBlogID } from '../../api/tag.js'
 import Tinymce from '../../components/Tinymce/index'
 
 export default {
@@ -311,8 +311,8 @@ export default {
             this.blogTagBindList=response.data
         }) 
     },
-    getTagListNoBind(keyValue){
-        getTagListNoBind(keyValue).then(response =>{
+    getTagsNoBindByBlogID(keyValue){
+        getTagsNoBindByBlogID(keyValue).then(response =>{
             this.tagList=response.data
         }) 
     },  
@@ -343,10 +343,14 @@ export default {
     },
     createData(){
         this.$refs['dataForm'].validate((valid)=>
-        {
+        { 
             if(valid){
-                submitForm(this.temp).then(()=>{ 
-                this.dialogFormVisible = false 
+                var data ={
+                    blogEntity:this.temp,
+                    tagEntities:this.blogTagBindList
+                }
+                submitForm(data).then(()=>{ 
+                    this.dialogFormVisible = false 
                     this.$notify({
                         title: 'Success',
                         message: '创建成功',
@@ -371,6 +375,7 @@ export default {
         this.$set(this.temp,'summary',row.summary) 
         this.$set(this.temp,'blogContent',row.blogContent)
         this.$set(this.temp,'isVisible',row.isVisible)  
+        console.log(this.temp)
         this.getTagListByBlogID(row.id)
         this.getTagsNoBindByBlogID(row.id)
 
@@ -452,28 +457,36 @@ export default {
     changeShowCover(value){
         this.showCover=value 
     },
-    handleTagClose(tag){ 
-        console.log("删除tag",tag)
+    handleTagClose(tag){  
         if(this.dialogStatus === 'create'){
 
             this.blogTagBindList.forEach(tagFromList => {  
                 if(tagFromList.id == tag.id){
                     if (this.blogTagBindList.indexOf(tagFromList) > -1) {
                         var i = this.blogTagBindList.indexOf(tagFromList);
-                        this.blogTagBindList.splice(i, 1);
-                        console.log("删除create下的标签",this.tagList)
+                        this.blogTagBindList.splice(i, 1); 
                     }
                 } 
             })
+            this.tagList.push(tag)
         }else{
-            deleteBlogTagBind(tag.bindID).then(()=>{ 
+            deleteBlogTagBind(tag.id).then(()=>{ 
+
+                this.blogTagBindList.forEach(tagBind => {  
+                    if(tagBind.id == tag.id){
+                        if (this.blogTagBindList.indexOf(tagBind) > -1) {
+                            var i = this.blogTagBindList.indexOf(tagBind);
+                            this.blogTagBindList.splice(i, 1); 
+                        }
+                    } 
+                })
                 this.$notify({
                     title: 'Success',
                     message: '删除标签成功',
                     type: 'success',
                     duration: 2000
                 }) 
-                this.getList()
+                
             }).catch(err => {
 
                 console.log(err)
@@ -484,8 +497,16 @@ export default {
                     duration: 2000
                 }) 
             })
-            this.getTagsNoBindByBlogID(tag.id)
+            let tagTemp={
+                id:tag.tagID,
+                name:tag.tagName
+            }
+
+            this.tagList.push(tagTemp)
+            console.log(this.tagList)
+            // this.getTagsNoBindByBlogID(tag.id)
         }
+      
     },
     //+tag button点击后展示input
     showTagInput() {
@@ -514,9 +535,7 @@ export default {
         
     },
     setTimeTagInput(){
-        console.log(this.inputTagValue,this.inputTagValue)
-
-        console.log("input输入完成后",this.inputTagValue)
+ 
         var tagNotExist=true  
         this.tagList.forEach(tag => {  
             if(tag.name == this.inputTagValue){
@@ -534,7 +553,7 @@ export default {
                 submitTagForm(tag).then(response =>{
                     console.log("添加tag后返回",response)
                     if(response.data != null){
-                         this.blogTagBindList.push(response.data)
+                        this.blogTagBindList.push(response.data)
                     } 
                     this.$notify({
                         title: 'Success',
@@ -548,14 +567,14 @@ export default {
                     this.blogTagBindList.push(this.selectTagItem)
                     console.log("在create中添加bindlist",this.blogTagBindList)
                     this.tagList.forEach(tag => {  
-                        if(tag.id == selectTagItem.id){
+                        if(tag.id == this.selectTagItem.id){
                             if (this.tagList.indexOf(tag) > -1) {
                                 var i = this.tagList.indexOf(tag);
                                 this.tagList.splice(i, 1);
                                 console.log("删除create下的标签",this.tagList)
                             }
                         } 
-                    })
+                    }) 
                     this.selectTagItem = null
 
                 }
@@ -581,31 +600,39 @@ export default {
                         type: 'error',
                         duration: 2000
                     }) 
-                })
-                this.getList() 
-            }else{
-                var entity={
-                    TagID:this.selectTagItem.id,
-                    BlogID:this.temp.id,
-                }  
-                submitBlogTagBind(entity).then(()=>{ 
-                    this.$notify({
-                        title: 'Success',
-                        message: '添加绑定成功',
-                        type: 'success',
-                        duration: 2000
-                    }) 
-                    this.getList()
-                }).catch(err => {
-
-                    console.log(err)
-                    this.$notify({
-                        title: 'error',
-                        message: '删除绑定失败',
-                        type: 'error',
-                        duration: 2000
-                    }) 
                 }) 
+            }else{
+                if(this.selectTagItem != null){
+                    var entity={
+                        TagID:this.selectTagItem.id,
+                        BlogID:this.temp.id,
+                    }  
+                    submitBlogTagBind(entity).then(response =>{ 
+                        this.$notify({
+                            title: 'Success',
+                            message: '添加绑定成功',
+                            type: 'success',
+                            duration: 2000
+                        })  
+                        let bindEntity={
+                            id:response.data.id,
+                            tagID:response.data.tagID,
+                            tagName: response.data.tagName
+                        } 
+                        this.blogTagBindList.push(bindEntity) 
+                    }) 
+                    
+                    this.tagList.forEach(tag => {  
+                        if(tag.id == this.selectTagItem.id){
+                            if (this.tagList.indexOf(tag) > -1) {
+                                var i = this.tagList.indexOf(tag);
+                                this.tagList.splice(i, 1); 
+                            }
+                        } 
+                    })  
+                    this.selectTagItem = null
+                    // this.getTagsNoBindByBlogID(this.temp.id)
+                }
             }
         }
        
