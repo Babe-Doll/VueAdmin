@@ -40,3 +40,11 @@ export function deleteForm(keyValue) {
   })
 }
 
+export function updateVisible(data) {
+  return request({
+    url: '/Blog',
+    method: 'put',
+    data
+  })
+}
+

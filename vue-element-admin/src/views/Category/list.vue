@@ -260,6 +260,7 @@ export default {
                         duration: 2000
                     })
                     this.getList() 
+                    this.$store.dispatch('clientData/getClientData');
                 })
 
             }

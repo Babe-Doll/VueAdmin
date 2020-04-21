@@ -59,8 +59,9 @@
         </el-table-column>
         <el-table-column
             label="分类"
-            prop="catagory" 
+            prop="categoryID" 
             align="center" 
+            :formatter="categoryFormatter"
         > 
         </el-table-column>
         <el-table-column
@@ -81,6 +82,15 @@
             prop="isVisible" 
             align="center" 
         > 
+            <template slot-scope="{row}">
+            <el-switch
+            v-model="row.isVisible"
+            active-text="T"
+            inactive-text="F"
+            @change="changeVisible(row)"
+            >
+            </el-switch>
+            </template>
         </el-table-column>  
         <el-table-column
             label="操作"
@@ -139,7 +149,7 @@
                 <el-input v-model="temp.title" />
             </el-form-item>
             <el-form-item label="分类">
-                <el-select v-model="temp.catagoryID" placeholder="请选择分类">
+                <el-select v-model="temp.categoryID" placeholder="请选择分类">
                 <el-option 
                     v-for="item in categoryList"
                     :key="item.id"
@@ -217,10 +227,10 @@
   </div>
 </template>
 
-<script> 
+<script>  
 import Pagination from '../../components/Pagination/index'
 import Waves from '../../directive/waves/waves.js'
-import { getGridJson, getFormJson, submitForm, updateForm, deleteForm} from '../../api/blog.js'
+import { getGridJson, getFormJson, submitForm, updateForm, deleteForm,updateVisible} from '../../api/blog.js'
 import { getAllCategory } from '../../api/category.js'
 import { getTagListByBlogID,submitBlogTagBind,deleteBlogTagBind,submitTagForm,createTagAndBindBlog,getAllTag,getTagsNoBindByBlogID } from '../../api/tag.js'
 import Tinymce from '../../components/Tinymce/index'
@@ -246,7 +256,7 @@ export default {
         temp:{ 
             id:undefined,
             title:'',
-            catagoryID:'', 
+            categoryID:'', 
             summary:'',
             blogContent:'',
             isVisible:true
@@ -270,12 +280,14 @@ export default {
         },
         inputTagValue:'',
         selectTagItem:undefined,
-        inputTagVisible:false, 
+        inputTagVisible:false,
+        categoryDic:undefined
     }
   },
   mounted() {
       this.getList()
       this.getCategoryList()
+      this.getCommonDic()
   },
   methods: { 
     getList(){
@@ -286,6 +298,15 @@ export default {
             this.total= response.data.total
         })
     },
+    changeVisible(row){
+        console.log(row)
+        updateVisible(row).then(() =>{
+            this.$message({
+                message:"修改成功",
+                type:'success'
+            }) 
+        }) 
+    },
     sortChange(data){
         console.log(data)
         if(data.order == null){
@@ -295,14 +316,20 @@ export default {
         this.getList()
 
     }, 
+    categoryFormatter(row, column, cellValue, index){  
+        return this.categoryDic[cellValue]  
+    },
+    getCommonDic(){ 
+        this.categoryDic = this.$store.state.clientData.category 
+
+    },
     getCategoryList(){
         getAllCategory().then(response =>{
             this.categoryList=response.data
         }) 
     },
     getTagList(){
-        getAllTag().then(response =>{
-            console.log(response.data)
+        getAllTag().then(response =>{ 
             this.tagList=response.data
         }) 
     },
@@ -320,7 +347,7 @@ export default {
         this.temp={ 
             id:undefined,
             title:'',
-            catagoryID:'', 
+            categoryID:'', 
             summary:'',
             blogContent:'',
             isVisible:true
@@ -371,7 +398,7 @@ export default {
         // this.temp.name=row.name 
         this.$set(this.temp,'id',row.id)
         this.$set(this.temp,'title',row.title) 
-        this.$set(this.temp,'catagoryID',row.catagoryID)
+        this.$set(this.temp,'categoryID',row.categoryID)
         this.$set(this.temp,'summary',row.summary) 
         this.$set(this.temp,'blogContent',row.blogContent)
         this.$set(this.temp,'isVisible',row.isVisible)  
@@ -391,8 +418,7 @@ export default {
         {
             if(valid){
                 // const tempData=Object.assign({},this.temp)
-                    const tempData = Object.assign({}, this.temp)
-                    console.log(tempData)
+                    const tempData = Object.assign({}, this.temp) 
                     updateForm(tempData.id,tempData).then(()=>{ 
                     this.dialogFormVisible = false
                     this.$notify({
@@ -412,9 +438,8 @@ export default {
         
         this.temp.id = row.id
         this.temp.title=row.title 
-        this.temp.catagoryID=row.catagoryID 
-        this.temp.summary=row.summary 
-        console.log(row.blogContent)
+        this.temp.categoryID=row.categoryID 
+        this.temp.summary=row.summary  
         this.temp.blogContent=row.blogContent 
         this.temp.isVisible=row.isVisible 
 
@@ -639,8 +664,7 @@ export default {
         this.inputTagValue=""
 
     },
-    handleTagSelect(item){
-        console.log("选择后",item)
+    handleTagSelect(item){ 
         this.selectTagItem = item 
         
     },

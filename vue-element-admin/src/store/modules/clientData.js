@@ -12,7 +12,7 @@ const mutations ={
     state.role=role
   },
   SET_CATEGORY:(state,category)=>{
-    state.catagory=category
+    state.category=category
   },
   SET_TAG:(state,tag)=>{
     state.tag=tag
@@ -20,13 +20,13 @@ const mutations ={
 }
 
 const actions ={
-   getClientData({commit}){
+   getClientData({commit}){ 
     return new Promise((resolve,reject) => {
-      getClientData().then(response =>{
+      getClientData().then(response =>{   
         const {role,tag,category } = response.data
         commit('SET_ROLE',role)
         commit('SET_CATEGORY',category)
-        commit('SET_TAG',tag)
+        commit('SET_TAG',tag) 
         resolve(response.data) 
       }).catch(error => {
         console.log("getClientData:" + error)
